@@ -226,13 +226,14 @@
     <!-- VIEW: ADMIN -->
     <main id="view-admin" class="view-content hidden py-8 px-4 max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-black text-gray-900">Quản trị viên</h2>
+       // <h2 class="text-3xl font-black text-gray-900">Quản trị viên</h2>
         <div class="flex flex-wrap gap-2">
             <button onclick="openChangePassModal()" class="px-5 py-3 bg-gray-700 text-white rounded-2xl font-bold shadow-md hover:bg-black text-xs sm:text-sm transition-all flex items-center gap-2">
                 <i class="fas fa-key"></i> Đổi mật khẩu
             </button>
 
             <button onclick="openAddDriverModal()" class="px-5 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-md hover:bg-blue-700 text-xs sm:text-sm">Thêm Xe</button>
+			<button onclick="deletewaitingBookings()" class="px-5 py-3 bg-red-400 text-white rounded-2xl font-bold shadow-md hover:bg-red-500 text-xs sm:text-sm">Chuyến chờ</button>
             <button onclick="deleteCancelledBookings()" class="px-5 py-3 bg-red-400 text-white rounded-2xl font-bold shadow-md hover:bg-red-500 text-xs sm:text-sm">Chuyến hủy</button>
             <button onclick="deleteCompletedBookings()" class="px-5 py-3 bg-orange-600 text-white rounded-2xl font-bold shadow-md hover:bg-orange-700 text-xs sm:text-sm">Chuyến hoàn thành</button>
             <button onclick="deleteAllBookings()" class="px-5 py-3 bg-red-600 text-white rounded-2xl font-bold shadow-md hover:bg-red-700 text-xs sm:text-sm">Xóa hết</button>
@@ -642,9 +643,9 @@ sortedDocs.forEach(docSnap => {
     }
 
     // 2. Kiểm tra định dạng SĐT (Phải là số, từ 9-11 chữ số)
-    const phoneRegex = /^[0-9]{9,11}$/;
+    const phoneRegex = /^0(3|5|7|8|9)[0-9]{8}$/;
     if (!phoneRegex.test(ph)) {
-        showToast("Số điện thoại không hợp lệ (9-11 chữ số)!", "error");
+        showToast("Số điện thoại không hợp lệ!Hãy nhập SDT của bạn.", "error");
         return;
     }
 
