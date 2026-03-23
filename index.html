@@ -267,7 +267,7 @@
         <button onclick="printFilteredBookings()" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
     <i class="fas fa-print"></i> In
 </button>
-	<button onclick="sendSheetBookings()" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
+	<button onclick="window.sendSheetBookings(event)" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
     <i class="fas fa-print"></i> Gởi
 </button>
         <button id="btn-delete-filtered" onclick="deleteFilteredBookings()" 
@@ -1444,15 +1444,18 @@ window.deleteFilteredBookings = async () => {
 };
 // Khai báo kiểu window để chắc chắn HTML gọi được
 window.sendSheetBookings = async function(e) {
-    const rows = document.querySelectorAll('#admin-booking-list tr');
+    console.log("Nút Gởi đã được bấm!"); // Kiểm tra xem hàm có chạy không
+    
+    const tableBody = document.getElementById('admin-booking-list');
+    const rows = tableBody ? tableBody.querySelectorAll('tr') : [];
+
     if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("Không có"))) {
-        alert("Không có dữ liệu để gửi!");
+        alert("Không có dữ liệu trong bảng để gửi!");
         return;
     }
 
-    if (!confirm(`Bạn có muốn gửi ${rows.length} chuyến xe này lên Google Sheet không?`)) return;
+    if (!confirm(`Gửi ${rows.length} chuyến xe lên Google Sheet?`)) return;
 
-    // Lấy nút bấm từ event
     const btn = e.currentTarget || e.target.closest('button');
     const originalContent = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
@@ -1461,27 +1464,29 @@ window.sendSheetBookings = async function(e) {
     try {
         for (let row of rows) {
             const cells = row.querySelectorAll('td');
-            if (cells.length < 6) continue; 
+            if (cells.length < 6) continue;
 
-            const data = {
-                name: cells[1]?.innerText.trim() || "",
-                phone: cells[2]?.innerText.trim() || "",
-                pickup: cells[3]?.innerText.trim() || "",
-                destination: cells[4]?.innerText.trim() || "",
-                driver: cells[5]?.innerText.trim() || "",
-                status: cells[6]?.innerText.trim() || ""
+            const rowData = {
+                name: cells[1]?.innerText.trim(),
+                phone: cells[2]?.innerText.trim(),
+                pickup: cells[3]?.innerText.trim(),
+                destination: cells[4]?.innerText.trim(),
+                driver: cells[5]?.innerText.trim(),
+                status: cells[6]?.innerText.trim()
             };
+
+            console.log("Đang gửi dòng:", rowData);
 
             await fetch('/api/proxy-sheet', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(rowData)
             });
         }
-        alert("✅ Đã gửi dữ liệu lên Google Sheet thành công!");
+        alert("✅ Gửi thành công! Kiểm tra Google Sheet nhé.");
     } catch (error) {
-        console.error("Lỗi:", error);
-        alert("❌ Lỗi kết nối API!");
+        console.error("Lỗi gửi dữ liệu:", error);
+        alert("❌ Lỗi: " + error.message);
     } finally {
         btn.innerHTML = originalContent;
         btn.disabled = false;
