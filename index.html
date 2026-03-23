@@ -1141,7 +1141,34 @@ window.handleChangePassword = async () => {
         showToast("Lỗi hệ thống, không thể thực hiện!", "error");
     }
 };
+	window.deletewaitingBookings = async () => {
+    if (!confirm("Bạn có chắc chắn muốn xóa tất cả các chuyến xe ĐANG CHỜ XE không?")) return;
 
+    try {
+        // Tạo truy vấn lấy các chuyến có status là 'cancelled'
+        const q = query(
+            collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), 
+            where("status", "==", "pending")
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            return showToast("Không có chuyến bị hủy nào để xóa!", "error");
+        }
+
+        // Thực hiện xóa đồng loạt
+        const deletePromises = querySnapshot.docs.map(d => 
+            deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', d.id))
+        );
+        
+        await Promise.all(deletePromises);
+        showToast(`Đã dọn dẹp sạch các chuyến khách đang chờ!`, "success");
+    } catch (e) {
+        console.error("Lỗi khi xóa đơn hủy:", e);
+        showToast("Có lỗi xảy ra khi xóa dữ liệu!", "error");
+    }
+};
 
 	window.deleteCancelledBookings = async () => {
     if (!confirm("Bạn có chắc chắn muốn xóa tất cả các chuyến xe KHÁCH ĐÃ HỦY không?")) return;
