@@ -269,7 +269,7 @@
         </span>
         <input type="text" id="admin-search-booking" 
                oninput="filterAdminBookings()" 
-               placeholder="Tìm theo tên khách, SĐT hoặc điểm đến..." 
+               placeholder="Tìm kiếm........" 
                class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-400 shadow-sm transition-all">
     </div>
     
@@ -277,7 +277,9 @@
         <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider">
             Kết quả: <span id="search-count" class="text-blue-600">0</span>
         </div>
-        
+        <button onclick="printFilteredBookings()" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
+    <i class="fas fa-print"></i> In
+</button>
         <button id="btn-delete-filtered" onclick="deleteFilteredBookings()" 
                 class="hidden px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold text-[10px] uppercase hover:bg-red-600 hover:text-white transition-all shadow-sm">
             <i class="fas fa-trash-alt mr-1"></i> Xóa kết quả lọc
@@ -609,7 +611,62 @@ sortedDocs.forEach(docSnap => {
             }
         }
 
-	
+
+
+
+	window.printFilteredBookings = () => {
+    // 1. Lấy phần nội dung bảng (bao gồm cả tiêu đề bảng)
+    const tableContent = document.querySelector('#admin-booking-table').closest('table').outerHTML;
+    const searchTerm = document.getElementById('admin-search-booking').value;
+    const reportDate = new Date().toLocaleString('vi-VN');
+
+    if (!tableContent || tableContent.includes('tbody id="admin-booking-table" class="divide-y divide-gray-100"></tbody>')) {
+        showToast("Không có dữ liệu trong bảng để in!", "error");
+        return;
+    }
+
+    // 2. Tạo một cửa sổ mới để in
+    const printWindow = window.open('', '_blank');
+    
+    // 3. Thiết kế trang in (Chỉ có bảng, không có nút bấm hay menu)
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Báo cáo chuyến xe - ${searchTerm || 'Tất cả'}</title>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 12px; }
+                    th { background-color: #111827 !important; color: white !important; -webkit-print-color-adjust: exact; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .footer { margin-top: 20px; font-size: 10px; text-align: right; }
+                    /* Ẩn cột "Xóa" khi in */
+                    th:last-child, td:last-child { display: none; }
+                    .status-pending { color: #f97316; }
+                    .status-accepted { color: #16a34a; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>DANH SÁCH CHUYẾN XE TRÊN HỆ THỐNG</h2>
+                   
+                    <p>Ngày xuất báo cáo: ${reportDate}</p>
+                </div>
+                ${tableContent}
+                <div class="footer">© 2026 Dịch Vụ Xe Thu Bồn</div>
+            </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+    
+    // 4. Lệnh in và tự động đóng cửa sổ tạm sau khi in xong
+    printWindow.focus();
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+};
 	
 
 
@@ -1214,13 +1271,22 @@ window.handleChangePassword = async () => {
         // Thêm logic lọc theo tài xế nếu bạn muốn tìm nhanh chuyến của 1 xe
         const driverP = (b.driverPlate || "").toLowerCase();
         const driverE = (b.driverEmail || "").toLowerCase();
+	const statusRaw = (b.status || "").toLowerCase();
+
+        // Tạo biến trung chuyển để lọc được tiếng Việt
+        let statusVN = "";
+        if (statusRaw === 'pending') statusVN = "đang chờ";
+        else if (statusRaw === 'accepted') statusVN = "đã nhận";
+        else if (statusRaw === 'completed') statusVN = "hoàn thành";
+        else if (statusRaw === 'cancelled') statusVN = "khách hủy";
 
         return name.includes(searchTerm) || 
                phone.includes(searchTerm) || 
                dest.includes(searchTerm) || 
                pickup.includes(searchTerm) ||
                driverP.includes(searchTerm) || 
-               driverE.includes(searchTerm);
+               statusRaw.includes(searchTerm) || // Lọc theo từ gốc (pending, cancelled...)
+               statusVN.includes(searchTerm);    // Lọc theo từ tiếng Việt (chờ,
     });
 
     document.getElementById('search-count').innerText = filtered.length;
@@ -1287,13 +1353,22 @@ window.deleteFilteredBookings = async () => {
         // Thêm thông tin tài xế vào logic lọc để xác định đúng danh sách cần xóa
         const driverP = (b.driverPlate || "").toLowerCase();
         const driverE = (b.driverEmail || "").toLowerCase();
+	const statusRaw = (b.status || "").toLowerCase();
+
+        // Tạo biến trung chuyển để lọc được tiếng Việt
+        let statusVN = "";
+        if (statusRaw === 'pending') statusVN = "đang chờ";
+        else if (statusRaw === 'accepted') statusVN = "đã nhận";
+        else if (statusRaw === 'completed') statusVN = "hoàn thành";
+        else if (statusRaw === 'cancelled') statusVN = "khách hủy";
 
         return name.includes(searchTerm) || 
                phone.includes(searchTerm) || 
                dest.includes(searchTerm) || 
                pickup.includes(searchTerm) ||
                driverP.includes(searchTerm) || 
-               driverE.includes(searchTerm);
+               statusRaw.includes(searchTerm) || // Lọc theo từ gốc (pending, cancelled...)
+               statusVN.includes(searchTerm);    // Lọc theo từ tiếng Việt (chờ,
     });
 
     // 2. Kiểm tra nếu không có gì để xóa
