@@ -267,9 +267,6 @@
         <button onclick="printFilteredBookings()" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
     <i class="fas fa-print"></i> In
 </button>
-	<button onclick="window.sendSheetBookings(event)" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
-    <i class="fas fa-print"></i> Gởi
-</button>
         <button id="btn-delete-filtered" onclick="deleteFilteredBookings()" 
                 class="hidden px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold text-[10px] uppercase hover:bg-red-600 hover:text-white transition-all shadow-sm">
             <i class="fas fa-trash-alt mr-1"></i> Xóa kết quả lọc
@@ -1442,67 +1439,7 @@ window.deleteFilteredBookings = async () => {
         }
     }
 };
-// Khai báo kiểu window để chắc chắn HTML gọi được
-window.sendSheetBookings = async function(e) {
-    // 1. Lấy tất cả dòng trong bảng
-    const rows = document.querySelectorAll('#admin-booking-list tr');
-    
-    // 2. Chỉ lấy những dòng CHƯA được đánh dấu là "đã gửi"
-    const unsentRows = Array.from(rows).filter(row => {
-        // Kiểm tra xem dòng đó có thuộc tính 'data-processed' chưa
-        return !row.hasAttribute('data-processed') && row.querySelectorAll('td').length >= 6;
-    });
 
-    if (unsentRows.length === 0) {
-        alert("Không có chuyến xe mới nào để gửi (hoặc tất cả đã được gửi rồi)!");
-        return;
-    }
-
-    if (!confirm(`Mày có chắc muốn gửi ${unsentRows.length} chuyến xe mới này không?`)) return;
-
-    // Khóa nút bấm
-    const btn = e.currentTarget || e.target.closest('button');
-    const originalContent = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gởi...';
-    btn.disabled = true;
-
-    let successCount = 0;
-
-    try {
-        for (let row of unsentRows) {
-            const cells = row.querySelectorAll('td');
-            const data = {
-                name: cells[1]?.innerText.trim(),
-                phone: cells[2]?.innerText.trim(),
-                pickup: cells[3]?.innerText.trim(),
-                destination: cells[4]?.innerText.trim(),
-                driver: cells[5]?.innerText.trim(),
-                status: cells[6]?.innerText.trim()
-            };
-
-            // Gửi dữ liệu qua Vercel Proxy
-            const resp = await fetch('/api/proxy-sheet', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            if (resp.ok) {
-                // ĐÁNH DẤU DÒNG NÀY ĐÃ XỬ LÝ XONG (KHÔNG XÓA)
-                row.setAttribute('data-processed', 'true');
-                row.style.backgroundColor = "#f0fdf4"; // Tô màu xanh nhạt để mày biết dòng này xong rồi
-                successCount++;
-            }
-        }
-        alert(`✅ Đã gửi thành công thêm ${successCount} dòng mới!`);
-    } catch (error) {
-        console.error("Lỗi:", error);
-        alert("❌ Lỗi kết nối API rồi mày ơi!");
-    } finally {
-        btn.innerHTML = originalContent;
-        btn.disabled = false;
-    }
-};
 </script>
 </body>
 </html>
