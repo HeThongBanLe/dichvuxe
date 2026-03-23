@@ -1442,56 +1442,51 @@ window.deleteFilteredBookings = async () => {
         }
     }
 };
-// Hàm dùng chung để đồng bộ dữ liệu lên Google Sheet qua Vercel Proxy
-async function sendSheetBookings() {
-    // 1. Lấy tất cả các chuyến xe đang hiển thị trong bảng Admin
+// Khai báo kiểu window để chắc chắn HTML gọi được
+window.sendSheetBookings = async function(e) {
     const rows = document.querySelectorAll('#admin-booking-list tr');
-    if (rows.length === 0) {
+    if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("Không có"))) {
         alert("Không có dữ liệu để gửi!");
         return;
     }
 
     if (!confirm(`Bạn có muốn gửi ${rows.length} chuyến xe này lên Google Sheet không?`)) return;
 
-    // Hiển thị trạng thái đang gửi
-    const btn = event.currentTarget;
+    // Lấy nút bấm từ event
+    const btn = e.currentTarget || e.target.closest('button');
     const originalContent = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
     btn.disabled = true;
 
     try {
-        // 2. Lặp qua từng dòng để lấy dữ liệu
         for (let row of rows) {
             const cells = row.querySelectorAll('td');
-            // Cấu trúc dựa trên giao diện bảng của mày
+            if (cells.length < 6) continue; 
+
             const data = {
-                name: cells[1]?.innerText || "",        // Cột Tên khách
-                phone: cells[2]?.innerText || "",       // Cột SĐT
-                pickup: cells[3]?.innerText || "",      // Cột Điểm đón
-                destination: cells[4]?.innerText || "", // Cột Điểm đến
-                status: cells[6]?.innerText || "",      // Cột Trạng thái
-                driver: cells[5]?.innerText || ""       // Cột Tài xế
+                name: cells[1]?.innerText.trim() || "",
+                phone: cells[2]?.innerText.trim() || "",
+                pickup: cells[3]?.innerText.trim() || "",
+                destination: cells[4]?.innerText.trim() || "",
+                driver: cells[5]?.innerText.trim() || "",
+                status: cells[6]?.innerText.trim() || ""
             };
 
-            // 3. Gửi từng dòng qua API Proxy Vercel
             await fetch('/api/proxy-sheet', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
         }
-
-        alert("✅ Đã gửi toàn bộ danh sách lên Google Sheet thành công!");
+        alert("✅ Đã gửi dữ liệu lên Google Sheet thành công!");
     } catch (error) {
-        console.error("Lỗi gửi Sheet:", error);
-        alert("❌ Có lỗi xảy ra khi gửi dữ liệu!");
+        console.error("Lỗi:", error);
+        alert("❌ Lỗi kết nối API!");
     } finally {
-        // Hoàn tác trạng thái nút
         btn.innerHTML = originalContent;
         btn.disabled = false;
     }
-}
-
+};
 </script>
 </body>
 </html>
