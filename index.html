@@ -6,10 +6,7 @@
     <title>Dịch Vụ Xe Mỹ Sơn -Thu Bồn -Kiểm Lâm -Đại Lộc -Hội An -Tam Kỳ -Đà Nẵng</title>
 	<meta name="description" content="Dịch vụ xe Thu Bồn phục vụ 24/7 tại Đà Nẵng, Hội An, Tam Kỳ, Duy Xuyên, Đại Lộc, Thu Bồn và Kiểm Lâm. Xe đời mới, giá rẻ, đưa đón tận nơi nhanh chóng!">
 	<meta name="keywords" content="xe mỹ sơn, xe thu bồn, xe kiểm lâm, xe đại lộc, xe duy xuyên, taxi tam kỳ, xe hội an đà nẵng, xe thu bồn giá rẻ">
-	
-	
 	<link rel="canonical" href="https://xethubon.vercel.app/" />
-
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -30,9 +27,6 @@
       "url": "https://xethubon.vercel.app/"
     }
     </script>
-
-
-	
 	<meta property="og:title" content="Dịch Vụ Xe Thu Bồn - Phục Vụ Tận Tâm">
 	<meta property="og:description" content="Đưa đón khu vực Mỹ Sơn -Thu Bồn -Kiểm Lâm -Đại Lộc -Hội An -Tam Kỳ -Đà Nẵng. Gọi là có xe!">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,14 +41,12 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
-        
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #22c55e; }
         input:checked + .slider:before { transform: translateX(26px); }
-        
         .new-order-pulse { animation: alert-pulse 1.5s infinite; }
         @keyframes alert-pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
@@ -72,7 +64,7 @@
                 <div class="taxi-gradient p-2 rounded-xl text-white shadow-md">
                     <i class="fas fa-taxi"></i>
                 </div>
-                <span class="font-extrabold text-xl tracking-tight text-gray-900 uppercase">Dịch Vụ Xe <span class="text-yellow-500">Thu Bồn</span></span>
+                <span class="font-extrabold text-xl tracking-tight text-gray-900 uppercase">Dịch Vụ Xe Tại <span class="text-yellow-500">Thu Bồn</span></span>
             </div>
             
             <div id="auth-nav-section" class="flex items-center gap-3">
@@ -239,9 +231,6 @@
             <button onclick="deleteAllBookings()" class="px-5 py-3 bg-red-600 text-white rounded-2xl font-bold shadow-md hover:bg-red-700 text-xs sm:text-sm">Xóa hết</button>
         </div>
     </div>
-    
-    
-
         <div class="mb-12">
             <h3 class="text-lg font-black mb-4 uppercase text-gray-700">Tất cả Tài xế</h3>
             <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
@@ -260,8 +249,6 @@
                 </div>
             </div>
         </div>
-
-
         <div class="mb-4 flex items-center justify-between gap-4">
     <div class="relative flex-1 max-w-md">
         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
@@ -286,9 +273,6 @@
         </button>
     </div>
 </div>
-
-
-
         <div class="mb-12">
             <h3 class="text-lg font-black mb-4 uppercase text-gray-700">Tất cả Chuyến xe</h3>
             <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
@@ -329,7 +313,7 @@
             </div>
             
             <p class="mt-2 text-[9px] text-gray-400 uppercase tracking-widest font-bold">
-                © 2026 Dịch Vụ Xe Thu Bồn - Phục vụ 24/7
+                © 2026 Dịch Vụ Xe Tại Thu Bồn - Phục vụ 24/7
             </p>
         </div>
     </footer>
@@ -351,6 +335,7 @@
     <div id="modal-add-driver" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
         <h3 class="text-2xl font-black mb-4 text-blue-600">Thêm Tài Xế Mới</h3>
+	<h4 class="text-[10px] font-black mb-2 text-black-600 italic">Tên đăng nhập chính là biển số xe.</h4>
         <input type="text" id="new-driver-name" class="w-full px-5 py-4 bg-gray-50 rounded-2xl mb-2 border outline-none" placeholder="Họ tên tài xế">
         <input type="tel" id="new-driver-phone" class="w-full px-5 py-4 bg-gray-50 rounded-2xl mb-2 border outline-none" placeholder="Số điện thoại tài xế">
         
@@ -362,6 +347,31 @@
         <button onclick="closeAddDriverModal()" class="w-full text-gray-400 mt-4 font-bold">Hủy</button>
     </div>
 </div>
+
+<div id="modal-edit-driver" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
+        <h3 class="text-2xl font-black mb-4 text-orange-600 italic">SỬA TÀI XẾ</h3>
+	<h4 class="text-[10px] font-black mb-2 text-black-600 italic ">Chỉ được sửa TÊN-SDT-BIỂN SỐ.Muốn đổi tên đăng nhâp thi xóa tài khoản cũ và thêm lại tài xế mới(biển số xe)</h4>
+        <input type="hidden" id="edit-driver-id">
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Họ và tên</label>
+                <input type="text" id="edit-driver-name" class="w-full px-5 py-3 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none focus:ring-2 focus:ring-orange-400 transition-all font-bold">
+            </div>
+            <div>
+                <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Số điện thoại</label>
+                <input type="tel" id="edit-driver-phone" class="w-full px-5 py-3 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none focus:ring-2 focus:ring-orange-400 transition-all font-bold">
+            </div>
+            <div>
+                <label class="text-[10px] font-black text-gray-400 uppercase ml-2">Biển số xe</label>
+                <input type="text" id="edit-driver-plate" class="w-full px-5 py-3 bg-gray-50 rounded-2xl border-none ring-1 ring-gray-200 outline-none focus:ring-2 focus:ring-orange-400 transition-all font-bold">
+            </div>
+        </div>
+        <button onclick="handleUpdateDriver()" class="w-full mt-6 py-4 bg-orange-600 text-white font-black rounded-2xl shadow-lg shadow-orange-200 active:scale-95 transition-all">LƯU CẬP NHẬT</button>
+        <button onclick="closeEditDriverModal()" class="w-full text-gray-400 mt-4 font-bold text-sm">Hủy bỏ</button>
+    </div>
+</div>
+
    <div id="modal-change-pass" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[200] p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
         <h3 class="text-2xl font-black mb-4">Đổi mật khẩu mới</h3>
@@ -583,7 +593,6 @@ sortedDocs.forEach(docSnap => {
     });
 }
         
-
         window.toggleOnlineStatus = async () => {
             const toggle = document.getElementById('online-toggle');
             const isOnline = toggle.checked;
@@ -610,9 +619,6 @@ sortedDocs.forEach(docSnap => {
                 stopAlertSound();
             }
         }
-
-
-
 
 	window.printFilteredBookings = () => {
     // 1. Lấy phần nội dung bảng (bao gồm cả tiêu đề bảng)
@@ -668,11 +674,6 @@ sortedDocs.forEach(docSnap => {
     }, 500);
 };
 	
-
-
-
-
-
 	window.createBooking = async (e) => {
     // 1. Chặn reload trang (Chống vỡ giao diện Mobile)
     if (e && e.preventDefault) e.preventDefault();
@@ -803,17 +804,7 @@ function resetButton(btn, originalContent) {
         btn.innerHTML = originalContent;
     }
 }
-
-
-
-
-
-
-
-
-
-
-		
+	
         function canAcceptPrebook(dateStr, timeStr) {
             if (!dateStr || !timeStr) return true;
             const target = new Date(`${dateStr}T${timeStr}`);
@@ -959,24 +950,29 @@ div.className = `p-6 rounded-[2rem] border transition-all ${bgColor} ${!isReady 
         function listenToDrivers() {
     onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'taxi_users'), (snap) => {
         const tbody = document.getElementById('admin-driver-table');
+        if (!tbody) return;
         tbody.innerHTML = '';
         snap.forEach(docSnap => {
             const d = docSnap.data();
             const tr = document.createElement('tr');
+            tr.className = "border-b border-gray-50 hover:bg-gray-50/50 transition-colors";
             tr.innerHTML = `
                 <td class="px-8 py-5">
                     <p class="font-black text-gray-900">${d.name}</p>
                     <p class="text-xs text-blue-600 font-bold">${d.phone || 'Chưa có SĐT'}</p> 
-                    <p class="text-[10px] bg-yellow-400 px-2 py-0.5 rounded font-black inline-block uppercase mt-1">${d.plate}</p>
+                    <p class="text-[10px] bg-yellow-400 px-2 py-0.5 rounded font-black inline-block uppercase mt-1 tracking-wider">${d.plate}</p>
                 </td>
                 <td class="px-8 py-5">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${d.isOnline ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
-                        ${d.isOnline ? 'ONLINE' : 'OFFLINE'}
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black ${d.isOnline ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
+                        ${d.isOnline ? '• ONLINE' : 'OFFLINE'}
                     </span>
                 </td>
-                <td class="px-8 py-5 text-sm text-gray-500">${d.email}</td>
-                <td class="px-8 py-5 text-right">
-                    <button onclick="deleteDriver('${docSnap.id}')" class="text-red-400 hover:text-red-600 transition-colors">
+                <td class="px-8 py-5 text-sm font-medium text-gray-500">${d.email}</td>
+                <td class="px-8 py-5 text-right space-x-2">
+                    <button onclick="openEditDriverModal('${docSnap.id}', '${d.name}', '${d.phone || ''}', '${d.plate}')" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteDriver('${docSnap.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>`;
@@ -1339,7 +1335,50 @@ window.handleChangePassword = async () => {
         tbody.appendChild(tr);
     });
 };
+// --- CHỨC NĂNG SỬA TÀI XẾ ---
+window.openEditDriverModal = (id, name, phone, plate) => {
+    document.getElementById('edit-driver-id').value = id;
+    document.getElementById('edit-driver-name').value = name;
+    document.getElementById('edit-driver-phone').value = phone;
+    document.getElementById('edit-driver-plate').value = plate;
+    
+    const modal = document.getElementById('modal-edit-driver');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+};
 
+window.closeEditDriverModal = () => {
+    const modal = document.getElementById('modal-edit-driver');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+};
+
+window.handleUpdateDriver = async () => {
+    const id = document.getElementById('edit-driver-id').value;
+    const name = document.getElementById('edit-driver-name').value.trim();
+    const phone = document.getElementById('edit-driver-phone').value.trim();
+    const plate = document.getElementById('edit-driver-plate').value.trim();
+
+    if (!name || !phone || !plate) {
+        showToast("Vui lòng nhập đầy đủ thông tin!", "error");
+        return;
+    }
+
+    try {
+        const driverRef = doc(db, 'artifacts', appId, 'public', 'data', 'taxi_users', id);
+        await updateDoc(driverRef, {
+            name: name,
+            phone: phone,
+            plate: plate
+        });
+        
+        showToast("Cập nhật tài xế thành công!", "success");
+        closeEditDriverModal();
+    } catch (e) {
+        console.error("Lỗi cập nhật:", e);
+        showToast("Không thể cập nhật: " + e.message, "error");
+    }
+};
 
 window.deleteFilteredBookings = async () => {
     const searchTerm = document.getElementById('admin-search-booking').value.trim().toLowerCase();
