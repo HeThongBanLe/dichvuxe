@@ -1444,17 +1444,18 @@ window.deleteFilteredBookings = async () => {
 };
 // Khai báo kiểu window để chắc chắn HTML gọi được
 window.sendSheetBookings = async function(e) {
-    console.log("Nút Gởi đã được bấm!"); // Kiểm tra xem hàm có chạy không
+    // 1. Lấy tất cả các dòng trong bảng
+    const rows = document.querySelectorAll('#admin-booking-list tr');
     
-    const tableBody = document.getElementById('admin-booking-list');
-    const rows = tableBody ? tableBody.querySelectorAll('tr') : [];
+    // Lọc ra những dòng CHƯA CÓ thuộc tính "data-sent" (chưa được gửi)
+    const unsentRows = Array.from(rows).filter(row => !row.getAttribute('data-sent'));
 
-    if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes("Không có"))) {
-        alert("Không có dữ liệu trong bảng để gửi!");
+    if (unsentRows.length === 0) {
+        alert("Tất cả dữ liệu hiện tại đã được gửi rồi!");
         return;
     }
 
-    if (!confirm(`Gửi ${rows.length} chuyến xe lên Google Sheet?`)) return;
+    if (!confirm(`Gửi ${unsentRows.length} chuyến xe mới lên Google Sheet?`)) return;
 
     const btn = e.currentTarget || e.target.closest('button');
     const originalContent = btn.innerHTML;
@@ -1462,31 +1463,36 @@ window.sendSheetBookings = async function(e) {
     btn.disabled = true;
 
     try {
-        for (let row of rows) {
+        for (let row of unsentRows) {
             const cells = row.querySelectorAll('td');
             if (cells.length < 6) continue;
 
             const rowData = {
-                name: cells[1]?.innerText.trim(),
-                phone: cells[2]?.innerText.trim(),
-                pickup: cells[3]?.innerText.trim(),
-                destination: cells[4]?.innerText.trim(),
-                driver: cells[5]?.innerText.trim(),
-                status: cells[6]?.innerText.trim()
+                name: cells[1]?.innerText.trim() || "",
+                phone: cells[2]?.innerText.trim() || "",
+                pickup: cells[3]?.innerText.trim() || "",
+                destination: cells[4]?.innerText.trim() || "",
+                driver: cells[5]?.innerText.trim() || "",
+                status: cells[6]?.innerText.trim() || ""
             };
 
-            console.log("Đang gửi dòng:", rowData);
-
+            // Gửi dữ liệu
             await fetch('/api/proxy-sheet', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(rowData)
             });
+
+            // ĐÁNH DẤU DÒNG NÀY ĐÃ GỬI (KHÔNG XÓA)
+            row.setAttribute('data-sent', 'true'); 
+            row.style.opacity = "0.5"; // Làm mờ đi một chút để mày biết là đã gửi rồi
+            row.classList.add('bg-gray-100'); // Đổi màu nền nhẹ để phân biệt
         }
-        alert("✅ Gửi thành công! Kiểm tra Google Sheet nhé.");
+
+        alert("✅ Đã gửi xong các chuyến xe mới!");
     } catch (error) {
-        console.error("Lỗi gửi dữ liệu:", error);
-        alert("❌ Lỗi: " + error.message);
+        console.error("Lỗi:", error);
+        alert("❌ Lỗi gửi dữ liệu!");
     } finally {
         btn.innerHTML = originalContent;
         btn.disabled = false;
