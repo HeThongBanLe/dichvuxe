@@ -264,6 +264,10 @@
         <div class="text-[10px] font-black text-gray-400 uppercase tracking-wider">
             Kết quả: <span id="search-count" class="text-blue-600">0</span>
         </div>
+		<button onclick="sendToGoogleSheet ()" 
+class="px-2 py-2 bg-blue-600 text-white rounded-2xl font-bold shadow-md hover:bg-blue-700 flex items-center gap-2">
+    <i class="fas fa-paper-plane"></i> Gởi
+</button>
         <button onclick="printFilteredBookings()" class="px-2 py-2 bg-green-600 text-white rounded-2xl font-bold shadow-md hover:bg-green-700 flex items-center gap-2">
     <i class="fas fa-print"></i> In
 </button>
@@ -1439,6 +1443,55 @@ window.deleteFilteredBookings = async () => {
         }
     }
 };
+
+// https://script.google.com/macros/s/AKfycbyT-Dc4-zLGBePdPDlq25kdFLSQoI7ozsetxU6s67_pnEjOyc6mrYrECuuJZ_3BY3zRPg/exec
+
+window.sendToGoogleSheet = async function() {
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyT-Dc4-zLGBePdPDlq25kdFLSQoI7ozsetxU6s67_pnEjOyc6mrYrECuuJZ_3BY3zRPg/exec';
+    const tableBody = document.getElementById('admin-booking-table');
+    const rows = tableBody ? tableBody.querySelectorAll('tr') : [];
+
+    if (rows.length === 0) return alert("Bảng trống!");
+
+    const btn = event.currentTarget;
+    btn.innerHTML = 'Đang đẩy dữ liệu...';
+    btn.disabled = true;
+
+    for (let row of rows) {
+        const cols = row.querySelectorAll('td');
+        if (cols.length >= 4) {
+            // Tách dữ liệu từ ô "Địa chỉ" (thường có 2 dòng: Đón và Đến)
+            // Chúng ta dùng innerHTML và tách theo thẻ <br> để không bị dính chữ
+            let addressHtml = cols[3].innerHTML.split(/<br\s*[\/]?>/gi);
+            let pickup = addressHtml[0] ? addressHtml[0].replace(/<\/?[^>]+(>|$)/g, "").trim() : "";
+            let destination = addressHtml[1] ? addressHtml[1].replace(/<\/?[^>]+(>|$)/g, "").trim() : "";
+
+            const payload = {
+                customerName: cols[1].innerText.trim(),
+                phone: cols[2].innerText.trim(),
+                path: pickup + " -> " + destination, // Gom lại thành Hành trình
+                status: cols[5] ? cols[5].innerText.trim() : (cols[4] ? cols[4].innerText.trim() : "Mới"),
+                driver: "Chưa giao", // Cột tài xế (nếu bạn có cột tài xế thì đổi index)
+                date: cols[0].innerText.trim() // Ngày/Giờ
+            };
+
+            try {
+                await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) { console.error(e); }
+        }
+    }
+
+    alert("Đã đồng bộ xong 6 cột chuẩn!");
+    btn.innerHTML = 'Đồng bộ Google Sheet';
+    btn.disabled = false;
+}
+
+
 </script>
 
 	
@@ -1509,5 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 </body>
 </html>
