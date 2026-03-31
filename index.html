@@ -251,10 +251,20 @@
             <i class="fas fa-check-circle absolute -right-4 -bottom-4 text-7xl text-white/10"></i>
         </div>
 
-        <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col h-[500px]">
-            <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+        <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col h-[560px]">
+            <h3 class="font-black text-gray-900 mb-3 flex items-center gap-2">
                 <i class="fas fa-list-ul text-yellow-500"></i> TRẠNG THÁI CHUYẾN XE
             </h3>
+            <!-- Ô tìm kiếm -->
+            <div class="relative mb-3">
+                <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-xs">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" id="public-search-booking"
+                       oninput="filterPublicBookings()"
+                       placeholder="Tìm tên hoặc SĐT..."
+                       class="w-full pl-8 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-yellow-400 transition-all">
+            </div>
             <div id="public-booking-status-list" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2">
                 <p class="text-center text-gray-400 text-sm py-10">Đang tải dữ liệu...</p>
             </div>
@@ -448,9 +458,7 @@
         <div class="flex flex-wrap justify-center gap-4 text-[12px] text-gray-600 font-medium">
             <div class="flex items-center gap-1">
                 <i class="fas fa-envelope text-yellow-500"></i>
-                <a href="mailto:dichvuxethubon@gmail.com" class="text-gray-900 hover:underline">
- 		 Email: dichvuxethubon@gmail.com
-		</a>
+                <a href="/cdn-cgi/l/email-protection#fc84998894899e9392bc9b919d9590d29f9391" class="text-gray-900 hover:underline">Email: <span class="__cf_email__" data-cfemail="b3cbd6c7dbc6d1dcddf3d4ded2dadf9dd0dcde">[email&#160;protected]</span></a>
             </div>
             <div class="flex items-center gap-1">
                 <i class="fas fa-phone-alt text-yellow-500"></i>
@@ -1020,9 +1028,92 @@
     };
 
     // ===== LẮNG NGHE TRẠNG THÁI CÔNG KHAI =====
+    // Cache danh sách booking công khai để filter
+    let publicBookingsCache = [];
+
+    function renderPublicBookings(items) {
+        const list = document.getElementById('public-booking-status-list');
+        list.innerHTML = '';
+
+        if (items.length === 0) {
+            list.innerHTML = `<p class="text-center text-gray-400 text-sm py-10 italic">Không tìm thấy chuyến nào.</p>`;
+            return;
+        }
+
+        items.forEach(item => {
+            const b      = item.data;
+            const docId  = item.id;
+            const div    = document.createElement('div');
+
+            // Style khác nhau: accepted nổi bật hơn pending
+            if (b.status === 'accepted') {
+                div.className = "p-4 rounded-2xl border-2 border-green-300 bg-green-50 space-y-2 shadow-md";
+            } else {
+                div.className = "p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-2 shadow-sm";
+            }
+
+            const prebookInfo = b.isPrebook
+                ? `<p class="text-[10px] text-blue-600 font-bold uppercase mb-1">
+                       <i class="fas fa-calendar-alt mr-1"></i> ${b.prebookDate} @ ${b.prebookTime}
+                   </p>` : '';
+
+            let st = "";
+            if (b.status === 'pending') {
+                st = `
+                    <div class="flex flex-col gap-2 pt-1 border-t border-gray-100">
+                        <span class="text-xs font-bold text-orange-500 animate-pulse">
+                            <i class="fas fa-clock mr-1"></i> Đang chờ xe...
+                        </span>
+                        <button onclick="handleCancelBooking('${docId}', '${b.phone}')"
+                                class="text-[10px] font-bold text-red-500 hover:text-red-700 w-fit border border-red-200 px-2 py-1 rounded-lg bg-red-50 transition-all">
+                            <i class="fas fa-times-circle mr-1"></i> HỦY CHUYẾN
+                        </button>
+                    </div>`;
+            } else {
+                st = `
+                    <div class="space-y-2 pt-1 border-t border-green-200">
+                        <span class="text-xs font-bold text-green-700">
+                            <i class="fas fa-check-circle mr-1"></i> Xe <b>${b.driverPlate}</b> đã nhận
+                        </span>
+                        <a href="tel:${b.driverPhone}"
+                           class="flex items-center gap-2 text-white bg-green-500 px-3 py-2 rounded-xl text-xs font-black w-fit shadow-md active:scale-95 transition-all">
+                            <i class="fas fa-phone-alt"></i> GỌI TÀI XẾ: ${b.driverPhone || '...'}
+                        </a>
+                    </div>`;
+            }
+
+            div.innerHTML = `
+                ${prebookInfo}
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-bold uppercase">Khách: ${b.customerName}</span>
+                    ${b.status === 'accepted' ? '<span class="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded-full font-black uppercase">Đã nhận</span>' : ''}
+                </div>
+                <p class="font-bold text-gray-800 text-sm">
+                    ${b.pickup} <i class="fas fa-arrow-right text-[10px] mx-1 text-gray-400"></i> ${b.destination}
+                </p>
+                <div class="mt-2">${st}</div>`;
+            list.appendChild(div);
+        });
+    }
+
+    window.filterPublicBookings = () => {
+        const term = (document.getElementById('public-search-booking')?.value || '').trim().toLowerCase();
+        if (!term) {
+            renderPublicBookings(publicBookingsCache);
+            return;
+        }
+        const filtered = publicBookingsCache.filter(item => {
+            const name  = (item.data.customerName || '').toLowerCase();
+            const phone = (item.data.phone || '').toLowerCase();
+            return name.includes(term) || phone.includes(term);
+        });
+        renderPublicBookings(filtered);
+    };
+
     function listenToPublicStatus() {
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'taxi_users'), (driverSnap) => {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), (bookingSnap) => {
+                // Đếm xe rảnh
                 const busyDriverEmails = new Set();
                 bookingSnap.forEach(bDoc => {
                     const bData = bDoc.data();
@@ -1030,7 +1121,6 @@
                         busyDriverEmails.add(bData.driverEmail);
                     }
                 });
-
                 let availableCount = 0;
                 driverSnap.forEach(dDoc => {
                     const dData = dDoc.data();
@@ -1038,64 +1128,30 @@
                 });
                 document.getElementById('count-available-drivers').innerText = availableCount;
 
-                const list = document.getElementById('public-booking-status-list');
-                list.innerHTML = '';
-                const sortedDocs = bookingSnap.docs.sort((a, b) =>
-                    (b.data().createdAt?.seconds || 0) - (a.data().createdAt?.seconds || 0)
-                );
+                // Lọc bỏ completed & cancelled
+                const visible = bookingSnap.docs
+                    .filter(d => !['completed', 'cancelled'].includes(d.data().status))
+                    .map(d => ({ id: d.id, data: d.data() }));
 
-                const visible = sortedDocs.filter(d => !['completed', 'cancelled'].includes(d.data().status));
+                // Sắp xếp: accepted lên trên, sau đó theo thời gian mới nhất
+                visible.sort((a, b) => {
+                    const statusOrder = { accepted: 0, pending: 1 };
+                    const sa = statusOrder[a.data.status] ?? 2;
+                    const sb = statusOrder[b.data.status] ?? 2;
+                    if (sa !== sb) return sa - sb;
+                    return (b.data.createdAt?.seconds || 0) - (a.data.createdAt?.seconds || 0);
+                });
+
+                publicBookingsCache = visible;
+
                 if (visible.length === 0) {
-                    list.innerHTML = `<p class="text-center text-gray-400 text-sm py-10 italic">Chưa có chuyến xe nào.</p>`;
+                    document.getElementById('public-booking-status-list').innerHTML =
+                        `<p class="text-center text-gray-400 text-sm py-10 italic">Chưa có chuyến xe nào.</p>`;
                     return;
                 }
 
-                visible.forEach(docSnap => {
-                    const b   = docSnap.data();
-                    const div = document.createElement('div');
-                    div.className = "p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-2 shadow-sm";
-
-                    const prebookInfo = b.isPrebook
-                        ? `<p class="text-[10px] text-blue-600 font-bold uppercase mb-1">
-                               <i class="fas fa-calendar-alt mr-1"></i> ${b.prebookDate} @ ${b.prebookTime}
-                           </p>` : '';
-
-                    let st = "";
-                    if (b.status === 'pending') {
-                        st = `
-                            <div class="flex flex-col gap-2 pt-1 border-t border-gray-100">
-                                <span class="text-xs font-bold text-orange-500 animate-pulse">
-                                    <i class="fas fa-clock mr-1"></i> Đang chờ xe...
-                                </span>
-                                <button onclick="handleCancelBooking('${docSnap.id}', '${b.phone}')"
-                                        class="text-[10px] font-bold text-red-500 hover:text-red-700 w-fit border border-red-200 px-2 py-1 rounded-lg bg-red-50 transition-all">
-                                    <i class="fas fa-times-circle mr-1"></i> HỦY CHUYẾN
-                                </button>
-                            </div>`;
-                    } else {
-                        st = `
-                            <div class="space-y-2 pt-1 border-t border-gray-100">
-                                <span class="text-xs font-bold text-green-600">
-                                    <i class="fas fa-check-circle mr-1"></i> Xe <b>${b.driverPlate}</b> đã nhận
-                                </span>
-                                <a href="tel:${b.driverPhone}"
-                                   class="flex items-center gap-2 text-white bg-green-500 px-3 py-2 rounded-xl text-xs font-black w-fit shadow-md active:scale-95 transition-all">
-                                    <i class="fas fa-phone-alt"></i> GỌI TÀI XẾ: ${b.driverPhone || '...'}
-                                </a>
-                            </div>`;
-                    }
-
-                    div.innerHTML = `
-                        ${prebookInfo}
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-bold uppercase">Khách: ${b.customerName}</span>
-                        </div>
-                        <p class="font-bold text-gray-800 text-sm">
-                            ${b.pickup} <i class="fas fa-arrow-right text-[10px] mx-1 text-gray-400"></i> ${b.destination}
-                        </p>
-                        <div class="mt-2">${st}</div>`;
-                    list.appendChild(div);
-                });
+                // Giữ từ khóa tìm kiếm hiện tại nếu có
+                window.filterPublicBookings();
             });
         });
     }
